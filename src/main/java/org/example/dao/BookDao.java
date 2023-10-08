@@ -20,4 +20,13 @@ public class BookDao {
                     "JOIN FETCH b.categories ", Book.class).list();
         }
     }
+
+    public Book getBookById(Long id) {
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("SELECT b FROM Book b " +
+                    "JOIN FETCH b.authors " +
+                    "JOIN FETCH b.categories " +
+                    "WHERE b.id=:id", Book.class).setParameter("id", id).getSingleResult();
+        }
+    }
 }

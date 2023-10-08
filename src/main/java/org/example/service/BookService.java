@@ -19,4 +19,8 @@ public class BookService {
     public List<Book> getAllBooks() {
         return bookDao.getAllBooks();
     }
+
+    public Book getBookById(Long id) {
+        return bookDao.getBookById(id);
+    }
 }

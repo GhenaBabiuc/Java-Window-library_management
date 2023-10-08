@@ -13,7 +13,9 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class Main {
+    private static BookService bookService;
     private static JFrame frame;
+    private static JTabbedPane tabbedPane;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Main::createAndShowGUI);
@@ -25,7 +27,9 @@ public class Main {
         frame.setSize(600, 400);
         frame.setLocationRelativeTo(null);
 
-        JTabbedPane tabbedPane = new JTabbedPane();
+        bookService = new BookService();
+
+        tabbedPane = new JTabbedPane();
 
         tabbedPane.addTab("Books", createBooksPanel());
         tabbedPane.addTab("Users", createUsersPanel());
@@ -68,7 +72,7 @@ public class Main {
             }
         });
 
-        List<Book> books = new BookService().getAllBooks();
+        List<Book> books = bookService.getAllBooks();
         for (Book book : books) {
             StringBuilder authors = new StringBuilder();
             StringBuilder categories = new StringBuilder();
@@ -88,9 +92,8 @@ public class Main {
     }
 
     private static void openBookTab(Long bookId) {
-        System.out.println(bookId);
+        Book book = bookService.getBookById(bookId);
     }
-
 
     private static JPanel createUsersPanel() {
         JPanel usersPanel = new JPanel();
