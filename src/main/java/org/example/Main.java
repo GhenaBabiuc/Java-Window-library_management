@@ -1,94 +1,87 @@
 package org.example;
 
+import org.example.model.books.Author;
+import org.example.model.books.Book;
+import org.example.model.books.Category;
+import org.example.service.BookService;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.Vector;
+import java.util.List;
 
 public class Main {
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/library_management";
-    private static final String DB_USER = "postgres";
-    private static final String DB_PASSWORD = "qwerty";
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            createAndShowGUI();
+        });
+    }
 
-    private JFrame frame;
-    private JTable bookTable;
-    private DefaultTableModel tableModel;
-
-    public Main() {
-        frame = new JFrame("Список книг");
+    private static void createAndShowGUI() {
+        JFrame frame = new JFrame("Library Management");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(600, 400);
 
-        tableModel = new DefaultTableModel();
-        tableModel.addColumn("№");
-        tableModel.addColumn("Название");
-        tableModel.addColumn("Автор");
-        tableModel.addColumn("Год");
-        tableModel.addColumn("Издатель");
-        tableModel.addColumn("Жанр");
-        tableModel.addColumn("Доступные копии");
+        JTabbedPane tabbedPane = new JTabbedPane();
 
-        bookTable = new JTable(tableModel);
-        bookTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        bookTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tabbedPane.addTab("Books", createBooksPanel());
+        tabbedPane.addTab("Users", createUsersPanel());
+        tabbedPane.addTab("History", createHistoryPanel());
 
-        JScrollPane scrollPane = new JScrollPane(bookTable);
+        frame.add(tabbedPane);
 
-        JButton loadButton = new JButton("Загрузить список книг");
-        loadButton.addActionListener(e -> loadBookList());
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(loadButton);
-
-        frame.getContentPane().setLayout(new BorderLayout());
-        frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
-        frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-    }
-
-    private void loadBookList() {
-        tableModel.setRowCount(0);
-
-        try {
-            Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM books.books");
-
-            int rowNumber = 1;
-            while (resultSet.next()) {
-                Vector<Object> row = new Vector<>();
-                row.add(rowNumber);
-                row.add(resultSet.getString("title"));
-                row.add(resultSet.getString("author"));
-                row.add(resultSet.getInt("year"));
-                row.add(resultSet.getString("publisher"));
-                row.add(resultSet.getString("genre"));
-                row.add(resultSet.getInt("copies_available"));
-
-                tableModel.addRow(row);
-                rowNumber++;
-            }
-
-            resultSet.close();
-            statement.close();
-            connection.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(frame, "Ошибка при загрузке списка книг.");
-        }
-    }
-
-    public void display() {
         frame.setVisible(true);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            Main app = new Main();
-            app.display();
-        });
+    private static JPanel createBooksPanel() {
+        JPanel booksPanel = new JPanel();
+        booksPanel.setLayout(new BorderLayout());
+
+        DefaultTableModel booksTableModel = new DefaultTableModel(new Object[]{"Isbn", "Title", "Year", "CopiesAvailable", "Authors", "Categories"}, 0);
+        JTable booksTable = new JTable(booksTableModel);
+        JScrollPane booksScrollPane = new JScrollPane(booksTable);
+        booksPanel.add(booksScrollPane, BorderLayout.CENTER);
+
+        List<Book> books = new BookService().getAllBooks();
+        for (Book book : books) {
+            StringBuilder authors = new StringBuilder();
+            StringBuilder categories = new StringBuilder();
+
+            for (Author author : book.getAuthors()) {
+                authors.append(author.getName()).append(", ");
+            }
+            for (Category category : book.getCategories()) {
+                categories.append(category.getName()).append(", ");
+            }
+
+            Object[] rowData = {book.getIsbn(), book.getTitle(), book.getYear(), book.getCopiesAvailable(), authors.toString(), categories.toString()};
+            booksTableModel.addRow(rowData);
+        }
+
+        return booksPanel;
+    }
+
+    private static JPanel createUsersPanel() {
+        JPanel usersPanel = new JPanel();
+        usersPanel.setLayout(new BorderLayout());
+
+        DefaultTableModel usersTableModel = new DefaultTableModel(new Object[]{"Idn", "First Name", "Last Name", "Contact Type", "Contact Value"}, 0);
+        JTable usersTable = new JTable(usersTableModel);
+        JScrollPane usersScrollPane = new JScrollPane(usersTable);
+        usersPanel.add(usersScrollPane, BorderLayout.CENTER);
+
+        return usersPanel;
+    }
+
+    private static JPanel createHistoryPanel() {
+        JPanel historyPanel = new JPanel();
+        historyPanel.setLayout(new BorderLayout());
+
+        DefaultTableModel historyTableModel = new DefaultTableModel(new Object[]{"User Idn", "User Name", "Book Isbn", "Book Title", "Borrow Date", "Return Date"}, 0);
+        JTable historyTable = new JTable(historyTableModel);
+        JScrollPane historyScrollPane = new JScrollPane(historyTable);
+        historyPanel.add(historyScrollPane, BorderLayout.CENTER);
+
+        return historyPanel;
     }
 }

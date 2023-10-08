@@ -1,35 +1,55 @@
 --liquibase formatted sql
 
---changeset gbabiuc:fill-authors-table splitStatements: false
-INSERT INTO books.authors (author_name)
-VALUES ('George Orwell'),
-       ('J.K. Rowling'),
-       ('Jane Austen'),
-       ('Mark Twain');
-
 --changeset gbabiuc:fill-books-table splitStatements: false
-INSERT INTO books.books (isbn, title, author, year, publisher, genre, copies_available)
-VALUES ('9780451524935', '1984', 'George Orwell', 1949, 'Penguin Books', 'Dystopian', 10),
-       ('9780439554930', 'Harry Potter and the Sorcerer''s Stone', 'J.K. Rowling', 1997, 'Scholastic', 'Fantasy', 15),
-       ('9780141439518', 'Pride and Prejudice', 'Jane Austen', 1813, 'Penguin Classics', 'Classic', 7),
-       ('9781615340042', 'The Adventures of Huckleberry Finn', 'Mark Twain', 1884, 'Vintage Classics', 'Adventure', 5);
+INSERT INTO books.books (isbn, title, year, copies_available)
+VALUES ('9780451419439', 'To Kill a Mockingbird', 1960, 5),
+       ('9780142424179', 'The Catcher in the Rye', 1951, 3),
+       ('9780061120084', '1984', 1949, 7);
 
---changeset gbabiuc:fill-books_authors-table splitStatements: false
-INSERT INTO books.books_authors (book_id, author_id)
+--changeset gbabiuc:fill-authors-table splitStatements: false
+INSERT INTO books.authors (name)
+VALUES ('Harper Lee'),
+       ('J.D. Salinger'),
+       ('George Orwell');
+
+--changeset gbabiuc:fill-book_to_author-table splitStatements: false
+INSERT INTO books.book_to_author (book_id, author_id)
 VALUES (1, 1),
        (2, 2),
-       (3, 3),
-       (4, 4);
+       (3, 3);
+
+--changeset gbabiuc:fill-categories-table splitStatements: false
+INSERT INTO books.categories (name)
+VALUES ('Fiction'),
+       ('Dystopian'),
+       ('Classic');
+
+--changeset gbabiuc:fill-book_to_category-table splitStatements: false
+INSERT INTO books.book_to_category (book_id, category_id)
+VALUES (1, 1),
+       (2, 1),
+       (3, 2);
 
 --changeset gbabiuc:fill-users-table splitStatements: false
-INSERT INTO users.users (first_name, last_name, email, phone, address)
-VALUES ('John', 'Doe', 'johndoe@example.com', '+1234567890', '123 Main St, City'),
-       ('Alice', 'Smith', 'alicesmith@example.com', '+9876543210', '456 Elm St, Town'),
-       ('Bob', 'Johnson', 'bobjohnson@example.com', '+1112223333', '789 Oak St, Village');
+INSERT INTO users.users (idn, first_name, last_name)
+VALUES ('000000000001', 'John', 'Doe'),
+       ('000000000002', 'Jane', 'Smith'),
+       ('000000000003', 'Bob', 'Johnson');
+
+--changeset gbabiuc:fill-contacts-table splitStatements: false
+INSERT INTO users.contacts (type, value)
+VALUES ('Email', 'john@example.com'),
+       ('Phone', '555-123-4567'),
+       ('Email', 'jane@example.com');
+
+--changeset gbabiuc:fill-user_to_contact-table splitStatements: false
+INSERT INTO users.user_to_contact (user_id, contact_id)
+VALUES (1, 1),
+       (1, 2),
+       (2, 3);
 
 --changeset gbabiuc:fill-borrow_history-table splitStatements: false
-INSERT INTO users.borrow_history (user_id, book_id, borrow_date, return_date)
-VALUES (1, 1, '2023-10-01', '2023-10-15'),
-       (2, 2, '2023-09-20', '2023-10-05'),
-       (3, 3, '2023-09-15', '2023-09-30'),
-       (1, 4, '2023-09-10', NULL);
+INSERT INTO books.borrow_history (user_id, book_id, borrow_date, return_date)
+VALUES (1, 1, '2023-01-15', '2023-02-15'),
+       (2, 2, '2023-02-10', '2023-03-10'),
+       (3, 3, '2023-03-20', NULL);
