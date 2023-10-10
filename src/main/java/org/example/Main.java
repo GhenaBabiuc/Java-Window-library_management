@@ -2,8 +2,13 @@ package org.example;
 
 import org.example.model.books.Author;
 import org.example.model.books.Book;
+import org.example.model.books.BorrowHistory;
 import org.example.model.books.Category;
+import org.example.model.users.Contact;
+import org.example.model.users.User;
 import org.example.service.BookService;
+import org.example.service.BorrowHistoryService;
+import org.example.service.UserService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -14,6 +19,8 @@ import java.util.List;
 
 public class Main {
     private static BookService bookService;
+    private static UserService userService;
+    private static BorrowHistoryService borrowHistoryService;
     private static JFrame frame;
     private static JTabbedPane tabbedPane;
 
@@ -28,6 +35,8 @@ public class Main {
         frame.setLocationRelativeTo(null);
 
         bookService = new BookService();
+        userService = new UserService();
+        borrowHistoryService = new BorrowHistoryService();
 
         tabbedPane = new JTabbedPane();
 
@@ -91,18 +100,48 @@ public class Main {
         return booksPanel;
     }
 
-    private static void openBookTab(Long bookId) {
-        Book book = bookService.getBookById(bookId);
-    }
-
     private static JPanel createUsersPanel() {
         JPanel usersPanel = new JPanel();
         usersPanel.setLayout(new BorderLayout());
 
-        DefaultTableModel usersTableModel = new DefaultTableModel(new Object[]{"Idn", "First Name", "Last Name", "Contact Type", "Contact Value"}, 0);
+        DefaultTableModel usersTableModel = new DefaultTableModel(new Object[]{"ID", "Idn", "First Name", "Last Name", "Contacts"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
         JTable usersTable = new JTable(usersTableModel);
         JScrollPane usersScrollPane = new JScrollPane(usersTable);
         usersPanel.add(usersScrollPane, BorderLayout.CENTER);
+
+        usersTable.getColumnModel().getColumn(0).setMinWidth(0);
+        usersTable.getColumnModel().getColumn(0).setMaxWidth(0);
+        usersTable.getColumnModel().getColumn(0).setWidth(0);
+
+        usersTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int selectedRow = usersTable.getSelectedRow();
+                    if (selectedRow >= 0) {
+                        Long userId = (Long) usersTableModel.getValueAt(selectedRow, 0);
+                        openUserTab(userId);
+                    }
+                }
+            }
+        });
+
+        List<User> users = userService.getAllUsers();
+        for (User user : users) {
+            StringBuilder contacts = new StringBuilder();
+
+            for (Contact contact : user.getContacts()) {
+                contacts.append(contact.getType()).append(":").append(contact.getValue()).append(", ");
+            }
+            Object[] rowData = {user.getId(), user.getIdn(), user.getFirstName(), user.getLastName(), contacts};
+            usersTableModel.addRow(rowData);
+        }
 
         return usersPanel;
     }
@@ -111,11 +150,55 @@ public class Main {
         JPanel historyPanel = new JPanel();
         historyPanel.setLayout(new BorderLayout());
 
-        DefaultTableModel historyTableModel = new DefaultTableModel(new Object[]{"User Idn", "User Name", "Book Isbn", "Book Title", "Borrow Date", "Return Date"}, 0);
+        DefaultTableModel historyTableModel = new DefaultTableModel(new Object[]{"ID", "User Idn", "User Name", "Book Isbn", "Book Title", "Borrow Date", "Return Date"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
         JTable historyTable = new JTable(historyTableModel);
         JScrollPane historyScrollPane = new JScrollPane(historyTable);
         historyPanel.add(historyScrollPane, BorderLayout.CENTER);
 
+        historyTable.getColumnModel().getColumn(0).setMinWidth(0);
+        historyTable.getColumnModel().getColumn(0).setMaxWidth(0);
+        historyTable.getColumnModel().getColumn(0).setWidth(0);
+
+        historyTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int selectedRow = historyTable.getSelectedRow();
+                    if (selectedRow >= 0) {
+                        Long borrowHistoryId = (Long) historyTableModel.getValueAt(selectedRow, 0);
+                        openBorrowHistoryTab(borrowHistoryId);
+                    }
+                }
+            }
+        });
+
+        List<BorrowHistory> borrowHistories = borrowHistoryService.getAllBorrowHistory();
+        for (BorrowHistory borrowHistory : borrowHistories) {
+            Object[] rowData = {borrowHistory.getId(), borrowHistory.getUser().getIdn(), borrowHistory.getUser().getFirstName() + " " + borrowHistory.getUser().getLastName(), borrowHistory.getBook().getIsbn(), borrowHistory.getBook().getTitle(), borrowHistory.getBorrowDate(), borrowHistory.getReturnDate()};
+            historyTableModel.addRow(rowData);
+        }
+
         return historyPanel;
+    }
+
+    private static void openBookTab(Long bookId) {
+        Book book = bookService.getBookById(bookId);
+        System.out.println(book.getAuthors().iterator().next().getName());
+    }
+
+    private static void openUserTab(Long userId) {
+        User user = userService.getUserByID(userId);
+        System.out.println(user.getFirstName());
+    }
+
+    private static void openBorrowHistoryTab(Long borrowHistoryId) {
+        BorrowHistory borrowHistory = borrowHistoryService.getBorrowHistoryById(borrowHistoryId);
+        System.out.println(borrowHistory.getBorrowDate());
     }
 }
