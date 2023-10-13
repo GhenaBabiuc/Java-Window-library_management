@@ -15,7 +15,7 @@ public class BorrowHistoryDao {
 
     public List<BorrowHistory> getAllBorrowHistory() {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("SELECT bh FROM BorrowHistory bh ", BorrowHistory.class).list();
+            return session.createQuery("SELECT bh FROM BorrowHistory bh ", BorrowHistory.class).getResultList();
         }
     }
 

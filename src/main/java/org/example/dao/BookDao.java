@@ -17,7 +17,7 @@ public class BookDao {
         try (Session session = sessionFactory.openSession()) {
             return session.createQuery("SELECT b FROM Book b " +
                     "JOIN FETCH b.authors " +
-                    "JOIN FETCH b.categories ", Book.class).list();
+                    "JOIN FETCH b.categories ", Book.class).getResultList();
         }
     }
 

@@ -4,6 +4,10 @@ import org.example.model.users.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 public class UserDao {
@@ -15,8 +19,15 @@ public class UserDao {
 
     public List<User> getAllUsers() {
         try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("SELECT u FROM User u " +
-                    "JOIN FETCH u.contacts ", User.class).list();
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<User> criteria = builder.createQuery(User.class);
+            Root<User> userRoot = criteria.from(User.class);
+
+            userRoot.fetch("contacts", JoinType.LEFT);
+
+            criteria.select(userRoot);
+
+            return session.createQuery(criteria).getResultList();
         }
     }
 
