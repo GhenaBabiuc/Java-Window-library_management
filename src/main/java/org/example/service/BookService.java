@@ -23,4 +23,12 @@ public class BookService {
     public Book getBookById(Long id) {
         return bookDao.getBookById(id);
     }
+
+    public void updateBook(Book book) {
+        bookDao.updateBook(book);
+    }
+
+    public void deleteBook(Book book) {
+        bookDao.deleteBook(book);
+    }
 }

@@ -3,6 +3,7 @@ package org.example.dao;
 import org.example.model.books.Book;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 import java.util.List;
 
@@ -27,6 +28,21 @@ public class BookDao {
                     "JOIN FETCH b.authors " +
                     "JOIN FETCH b.categories " +
                     "WHERE b.id=:id", Book.class).setParameter("id", id).getSingleResult();
+        }
+    }
+
+    public void updateBook(Book book) {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+
+            session.merge(book);
+
+            transaction.commit();
+        }
+    }
+
+    public void deleteBook(Book book) {
+        try (Session session = sessionFactory.openSession()) {
         }
     }
 }
