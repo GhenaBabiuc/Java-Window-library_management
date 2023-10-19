@@ -31,6 +31,6 @@ public class User {
     private String lastName;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinTable(name = "user_to_contact", schema = "users", joinColumns = {@JoinColumn(name = "user_id")}, inverseJoinColumns = {@JoinColumn(name = "contact_id")})
+    @JoinTable(name = "user_to_contact", schema = "users", joinColumns = {@JoinColumn(name = "contact_id")}, inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<Contact> contacts;
 }
