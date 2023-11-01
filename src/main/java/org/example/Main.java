@@ -15,6 +15,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -189,40 +190,8 @@ public class Main {
 
     private static void openBookTab(Long bookId) {
         Book book = bookService.getBookById(bookId);
-
-        JDialog bookDialog = new JDialog(frame, "Edit Book", true);
-
-        JTextField titleField = new JTextField(book.getTitle());
-        JTextField isbnField = new JTextField(book.getIsbn());
-
-        JButton saveButton = new JButton("Save");
-        JButton deleteButton = new JButton("Delete");
-
-        saveButton.addActionListener(e -> {
-            book.setTitle(titleField.getText());
-            book.setIsbn(isbnField.getText());
-            bookService.updateBook(book);
-            bookDialog.dispose();
-        });
-
-        deleteButton.addActionListener(e -> {
-            bookService.deleteBook(book);
-            bookDialog.dispose();
-        });
-
-        JPanel bookPanel = new JPanel(new GridLayout(3, 2));
-        bookPanel.add(new JLabel("Title:"));
-        bookPanel.add(titleField);
-        bookPanel.add(new JLabel("ISBN:"));
-        bookPanel.add(isbnField);
-
-        bookPanel.add(saveButton);
-        bookPanel.add(deleteButton);
-
-        bookDialog.add(bookPanel);
-        bookDialog.pack();
-        bookDialog.setLocationRelativeTo(frame);
-        bookDialog.setVisible(true);
+        BookEditorForm bookEditorForm = new BookEditorForm(book, List.of(new Author(1L, "a")), new ArrayList<>());
+        bookEditorForm.setVisible(true);
     }
 
     private static void openUserTab(Long userId) {
