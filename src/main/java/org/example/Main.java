@@ -190,7 +190,9 @@ public class Main {
 
     private static void openBookTab(Long bookId) {
         Book book = bookService.getBookById(bookId);
-        BookEditorForm bookEditorForm = new BookEditorForm(book, List.of(new Author(1L, "a")), new ArrayList<>());
+        List<Category> categories = bookService.getAllCategories();
+        List<Author> authors = bookService.getAllAuthors();
+        BookEditorForm bookEditorForm = new BookEditorForm(book, authors, categories);
         bookEditorForm.setVisible(true);
     }
 

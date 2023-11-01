@@ -98,7 +98,6 @@ public class BookEditorForm extends JFrame {
             Author selectedAuthor = (Author) authorsComboBox.getSelectedItem();
             Category selectedCategory = (Category) categoriesComboBox.getSelectedItem();
 
-            // Add the selected author and category to the book's authors and categories
             Set<Author> selectedAuthors = book.getAuthors();
             selectedAuthors.add(selectedAuthor);
             book.setAuthors(selectedAuthors);

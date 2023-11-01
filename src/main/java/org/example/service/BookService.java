@@ -1,7 +1,9 @@
 package org.example.service;
 
 import org.example.dao.BookDao;
+import org.example.model.books.Author;
 import org.example.model.books.Book;
+import org.example.model.books.Category;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
@@ -22,6 +24,14 @@ public class BookService {
 
     public Book getBookById(Long id) {
         return bookDao.getBookById(id);
+    }
+
+    public List<Category> getAllCategories() {
+        return bookDao.getAllCategories();
+    }
+
+    public List<Author> getAllAuthors() {
+        return bookDao.getAllAuthors();
     }
 
     public void updateBook(Book book) {
