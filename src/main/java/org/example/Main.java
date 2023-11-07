@@ -15,7 +15,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 
 public class Main {
@@ -24,6 +25,7 @@ public class Main {
     private static BorrowHistoryService borrowHistoryService;
     private static JFrame frame;
     private static JTabbedPane tabbedPane;
+    private static BookEditorForm bookEditorForm;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Main::createAndShowGUI);
@@ -88,10 +90,16 @@ public class Main {
             StringBuilder categories = new StringBuilder();
 
             for (Author author : book.getAuthors()) {
-                authors.append(author.getName()).append(", ");
+                authors.append(author.getName());
+                if (book.getAuthors().size() > 1) {
+                    authors.append(", ");
+                }
             }
             for (Category category : book.getCategories()) {
-                categories.append(category.getName()).append(", ");
+                categories.append(category.getName());
+                if (book.getCategories().size() > 1) {
+                    categories.append(", ");
+                }
             }
 
             Object[] rowData = {book.getId(), book.getIsbn(), book.getTitle(), book.getYear(), book.getCopiesAvailable(), authors.toString(), categories.toString()};
@@ -189,11 +197,21 @@ public class Main {
     }
 
     private static void openBookTab(Long bookId) {
-        Book book = bookService.getBookById(bookId);
-        List<Category> categories = bookService.getAllCategories();
-        List<Author> authors = bookService.getAllAuthors();
-        BookEditorForm bookEditorForm = new BookEditorForm(book, authors, categories);
-        bookEditorForm.setVisible(true);
+        if (bookEditorForm == null) {
+            Book book = bookService.getBookById(bookId);
+            List<Category> categories = bookService.getAllCategories();
+            List<Author> authors = bookService.getAllAuthors();
+            bookEditorForm = new BookEditorForm(book, authors, categories);
+            bookEditorForm.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    bookEditorForm = null;
+                }
+            });
+            bookEditorForm.setVisible(true);
+        } else {
+            bookEditorForm.toFront();
+        }
     }
 
     private static void openUserTab(Long userId) {
