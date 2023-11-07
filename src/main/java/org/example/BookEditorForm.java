@@ -179,8 +179,8 @@ public class BookEditorForm extends JFrame {
 
         JLabel authorsLabel = new JLabel("Authors:");
         authorsComboBox = new JComboBox<>(allAuthors.toArray(new Author[0]));
+        authorsComboBox.setSelectedItem(book.getAuthors().iterator().next());
         authorsComboBox.setRenderer(new AuthorComboBoxRenderer());
-        authorsComboBox.setSelectedItem(book.getAuthors());
         authorsComboBox.setEnabled(false);
         formPanel.add(authorsLabel);
         formPanel.add(authorsComboBox);
@@ -190,8 +190,8 @@ public class BookEditorForm extends JFrame {
 
         JLabel categoriesLabel = new JLabel("Categories:");
         categoriesComboBox = new JComboBox<>(allCategories.toArray(new Category[0]));
+        categoriesComboBox.setSelectedItem(book.getCategories().iterator().next());
         categoriesComboBox.setRenderer(new CategoryComboBoxRenderer());
-        categoriesComboBox.setSelectedItem(book.getCategories());
         categoriesComboBox.setEnabled(false);
         formPanel.add(categoriesLabel);
         formPanel.add(categoriesComboBox);
@@ -238,6 +238,12 @@ public class BookEditorForm extends JFrame {
                         BookService bookService = new BookService();
                         bookService.updateBook(book);
                         changesMade = false;
+
+                        Runnable clearTabbedPanes = Main::clearTabbedPanes;
+                        Runnable addTabbedPanes = Main::addTabbedPanes;
+                        clearTabbedPanes.run();
+                        addTabbedPanes.run();
+
                         JOptionPane.showMessageDialog(this, "Data has been successfully saved", "Info", JOptionPane.INFORMATION_MESSAGE);
                         dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
                     } else {

@@ -43,13 +43,21 @@ public class Main {
 
         tabbedPane = new JTabbedPane();
 
-        tabbedPane.addTab("Books", createBooksPanel());
-        tabbedPane.addTab("Users", createUsersPanel());
-        tabbedPane.addTab("History", createHistoryPanel());
+        addTabbedPanes();
 
         frame.add(tabbedPane);
 
         frame.setVisible(true);
+    }
+
+    public static void clearTabbedPanes() {
+        tabbedPane.removeAll();
+    }
+
+    public static void addTabbedPanes() {
+        tabbedPane.addTab("Books", createBooksPanel());
+        tabbedPane.addTab("Users", createUsersPanel());
+        tabbedPane.addTab("History", createHistoryPanel());
     }
 
     private static JPanel createBooksPanel() {
