@@ -37,8 +37,7 @@ public class BookEditorForm extends JFrame {
         JPanel formPanel = new JPanel(new GridLayout(7, 2));
 
         JLabel isbnLabel = new JLabel("ISBN:");
-        isbnField = new JTextField(book.getIsbn());
-        isbnField.setEditable(false);
+        isbnField = book.getIsbn() == null ? new JTextField() : new JTextField(book.getIsbn());
         formPanel.add(isbnLabel);
         formPanel.add(isbnField);
         isbnField.getDocument().addDocumentListener(new DocumentListener() {
@@ -75,8 +74,7 @@ public class BookEditorForm extends JFrame {
         });
 
         JLabel titleLabel = new JLabel("Title:");
-        titleField = new JTextField(book.getTitle());
-        titleField.setEditable(false);
+        titleField = book.getTitle() == null ? new JTextField() : new JTextField(book.getTitle());
         formPanel.add(titleLabel);
         formPanel.add(titleField);
         titleField.getDocument().addDocumentListener(new DocumentListener() {
@@ -113,8 +111,7 @@ public class BookEditorForm extends JFrame {
         });
 
         JLabel yearLabel = new JLabel("Year:");
-        yearField = new JTextField(book.getYear() != null ? book.getYear().toString() : "");
-        yearField.setEditable(false);
+        yearField = String.valueOf(book.getYear()).equals("null") ? new JTextField() : new JTextField(String.valueOf(book.getYear()));
         formPanel.add(yearLabel);
         formPanel.add(yearField);
         yearField.getDocument().addDocumentListener(new DocumentListener() {
@@ -168,8 +165,7 @@ public class BookEditorForm extends JFrame {
         });
 
         JLabel copiesAvailableLabel = new JLabel("Copies Available:");
-        copiesAvailableField = new JTextField(book.getCopiesAvailable() != null ? book.getCopiesAvailable().toString() : "");
-        copiesAvailableField.setEditable(false);
+        copiesAvailableField = String.valueOf(book.getCopiesAvailable()).equals("null") ? new JTextField() : new JTextField(String.valueOf(book.getCopiesAvailable()));
         formPanel.add(copiesAvailableLabel);
         formPanel.add(copiesAvailableField);
         copiesAvailableField.getDocument().addDocumentListener(new DocumentListener() {
@@ -207,9 +203,10 @@ public class BookEditorForm extends JFrame {
 
         JLabel authorsLabel = new JLabel("Authors:");
         authorsComboBox = new JComboBox<>(allAuthors.toArray(new Author[0]));
-        authorsComboBox.setSelectedItem(book.getAuthors().iterator().next());
+        if (book.getAuthors() != null) {
+            authorsComboBox.setSelectedItem(book.getAuthors().iterator().next());
+        }
         authorsComboBox.setRenderer(new AuthorComboBoxRenderer());
-        authorsComboBox.setEnabled(false);
         formPanel.add(authorsLabel);
         formPanel.add(authorsComboBox);
         authorsComboBox.addActionListener(e -> {
@@ -218,29 +215,39 @@ public class BookEditorForm extends JFrame {
 
         JLabel categoriesLabel = new JLabel("Categories:");
         categoriesComboBox = new JComboBox<>(allCategories.toArray(new Category[0]));
-        categoriesComboBox.setSelectedItem(book.getCategories().iterator().next());
+        if (book.getCategories() != null) {
+            categoriesComboBox.setSelectedItem(book.getCategories().iterator().next());
+        }
         categoriesComboBox.setRenderer(new CategoryComboBoxRenderer());
-        categoriesComboBox.setEnabled(false);
         formPanel.add(categoriesLabel);
         formPanel.add(categoriesComboBox);
         categoriesComboBox.addActionListener(e -> {
             changesMade = true;
         });
 
-        JLabel editableLabel = new JLabel("Editable:");
-        editableCheckBox = new JCheckBox();
-        editableCheckBox.setSelected(false);
-        editableCheckBox.addActionListener(e -> {
-            boolean editable = editableCheckBox.isSelected();
-            isbnField.setEditable(editable);
-            titleField.setEditable(editable);
-            yearField.setEditable(editable);
-            copiesAvailableField.setEditable(editable);
-            authorsComboBox.setEnabled(editable);
-            categoriesComboBox.setEnabled(editable);
-        });
-        formPanel.add(editableLabel);
-        formPanel.add(editableCheckBox);
+        if (book.getId() != null) {
+            isbnField.setEditable(false);
+            titleField.setEditable(false);
+            yearField.setEditable(false);
+            copiesAvailableField.setEditable(false);
+            categoriesComboBox.setEnabled(false);
+            authorsComboBox.setEnabled(false);
+
+            JLabel editableLabel = new JLabel("Editable:");
+            editableCheckBox = new JCheckBox();
+            editableCheckBox.setSelected(false);
+            editableCheckBox.addActionListener(e -> {
+                boolean editable = editableCheckBox.isSelected();
+                isbnField.setEditable(editable);
+                titleField.setEditable(editable);
+                yearField.setEditable(editable);
+                copiesAvailableField.setEditable(editable);
+                authorsComboBox.setEnabled(editable);
+                categoriesComboBox.setEnabled(editable);
+            });
+            formPanel.add(editableLabel);
+            formPanel.add(editableCheckBox);
+        }
 
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {

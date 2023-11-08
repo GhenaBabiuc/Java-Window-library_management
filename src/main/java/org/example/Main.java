@@ -64,6 +64,11 @@ public class Main {
         JPanel booksPanel = new JPanel();
         booksPanel.setLayout(new BorderLayout());
 
+        JButton addButton = new JButton("Add new book");
+        addButton.addActionListener(e -> {
+            addBookTab();
+        });
+
         DefaultTableModel booksTableModel = new DefaultTableModel(new Object[]{"ID", "Isbn", "Title", "Year", "CopiesAvailable", "Authors", "Categories"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -73,6 +78,7 @@ public class Main {
 
         JTable booksTable = new JTable(booksTableModel);
         JScrollPane booksScrollPane = new JScrollPane(booksTable);
+        booksPanel.add(addButton, BorderLayout.NORTH);
         booksPanel.add(booksScrollPane, BorderLayout.CENTER);
 
         booksTable.getColumnModel().getColumn(0).setMinWidth(0);
@@ -202,6 +208,24 @@ public class Main {
         }
 
         return historyPanel;
+    }
+
+    private static void addBookTab() {
+        if (bookEditorForm == null) {
+            Book book = new Book();
+            List<Category> categories = bookService.getAllCategories();
+            List<Author> authors = bookService.getAllAuthors();
+            bookEditorForm = new BookEditorForm(book, authors, categories);
+            bookEditorForm.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    bookEditorForm = null;
+                }
+            });
+            bookEditorForm.setVisible(true);
+        } else {
+            bookEditorForm.toFront();
+        }
     }
 
     private static void openBookTab(Long bookId) {
