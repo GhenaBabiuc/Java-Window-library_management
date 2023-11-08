@@ -65,6 +65,13 @@ public class BookEditorForm extends JFrame {
                     e.consume();
                 }
             }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    e.consume();
+                }
+            }
         });
 
         JLabel titleLabel = new JLabel("Title:");
@@ -93,6 +100,13 @@ public class BookEditorForm extends JFrame {
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
                 if (!((Character.isDigit(c) || Character.isLetter(c) || c == '-' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && titleField.getText().length() < 255)) {
+                    e.consume();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
                     e.consume();
                 }
             }
@@ -144,6 +158,13 @@ public class BookEditorForm extends JFrame {
                     e.consume();
                 }
             }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    e.consume();
+                }
+            }
         });
 
         JLabel copiesAvailableLabel = new JLabel("Copies Available:");
@@ -172,6 +193,13 @@ public class BookEditorForm extends JFrame {
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
                 if (!((Character.isDigit(c) || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && copiesAvailableField.getText().length() < 7)) {
+                    e.consume();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
                     e.consume();
                 }
             }
