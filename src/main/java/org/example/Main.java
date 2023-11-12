@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.filters.BookFilter;
 import org.example.model.books.Author;
 import org.example.model.books.Book;
 import org.example.model.books.BorrowHistory;
@@ -13,10 +14,8 @@ import org.example.service.UserService;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
+import java.time.LocalDate;
 import java.util.List;
 
 public class Main {
@@ -34,7 +33,7 @@ public class Main {
     private static void createAndShowGUI() {
         frame = new JFrame("Library Management");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 400);
+        frame.setSize(1000, 600);
         frame.setLocationRelativeTo(null);
 
         bookService = new BookService();
@@ -55,19 +54,146 @@ public class Main {
     }
 
     public static void addTabbedPanes() {
-        tabbedPane.addTab("Books", createBooksPanel());
-        tabbedPane.addTab("Users", createUsersPanel());
-        tabbedPane.addTab("History", createHistoryPanel());
+        tabbedPane.addTab("Books", createBooksPanel(bookService.getAllBooks()));
+        tabbedPane.addTab("Users", createUsersPanel(userService.getAllUsers()));
+        tabbedPane.addTab("History", createHistoryPanel(borrowHistoryService.getAllBorrowHistory()));
     }
 
-    private static JPanel createBooksPanel() {
+    private static JPanel createBooksPanel(List<Book> books) {
         JPanel booksPanel = new JPanel();
         booksPanel.setLayout(new BorderLayout());
+
+        JTextField isbnField = new JTextField(10);
+        isbnField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!((Character.isDigit(c) || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && isbnField.getText().length() < 13)) {
+                    e.consume();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    e.consume();
+                }
+            }
+        });
+        JTextField titleField = new JTextField(10);
+        titleField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!((Character.isDigit(c) || Character.isLetter(c) || c == '-' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && titleField.getText().length() < 255)) {
+                    e.consume();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    e.consume();
+                }
+            }
+        });
+        JTextField yearField = new JTextField(4);
+        yearField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if ((Character.isDigit(c) || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && (yearField.getText().length() < 4)) {
+                    try {
+                        if (c != KeyEvent.VK_BACK_SPACE && c != KeyEvent.VK_DELETE) {
+                            String text = yearField.getText() + c;
+                            if (text.length() == 4) {
+                                int year = Integer.parseInt(text);
+                                int currentYear = LocalDate.now().getYear();
+                                if (!(year >= 1 && year <= currentYear)) {
+                                    JOptionPane.showMessageDialog(null, "Please enter a valid year (between 1 and " + currentYear + ").", "Invalid Year", JOptionPane.WARNING_MESSAGE);
+                                    yearField.setText("");
+                                    e.consume();
+                                }
+                            }
+                        }
+                    } catch (NumberFormatException exception) {
+                        exception.printStackTrace();
+                    }
+                } else {
+                    e.consume();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    e.consume();
+                }
+            }
+        });
+        JTextField authorField = new JTextField(10);
+        authorField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!((Character.isDigit(c) || Character.isLetter(c) || c == '-' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && titleField.getText().length() < 255)) {
+                    e.consume();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    e.consume();
+                }
+            }
+        });
+        JTextField categoryField = new JTextField(10);
+        categoryField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!((Character.isDigit(c) || Character.isLetter(c) || c == '-' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && titleField.getText().length() < 255)) {
+                    e.consume();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    e.consume();
+                }
+            }
+        });
+
+        JButton searchButton = new JButton("Search");
+        JButton clearButton = new JButton("Clear");
+
+        clearButton.addActionListener(e -> {
+            clearTabbedPanes();
+            addTabbedPanes();
+        });
+
+        JPanel searchPanel = new JPanel();
+        searchPanel.add(new JLabel("ISBN:"));
+        searchPanel.add(isbnField);
+        searchPanel.add(new JLabel("Title:"));
+        searchPanel.add(titleField);
+        searchPanel.add(new JLabel("Year:"));
+        searchPanel.add(yearField);
+        searchPanel.add(new JLabel("Author:"));
+        searchPanel.add(authorField);
+        searchPanel.add(new JLabel("Category:"));
+        searchPanel.add(categoryField);
+        searchPanel.add(searchButton);
+        searchPanel.add(clearButton);
 
         JButton addButton = new JButton("Add new book");
         addButton.addActionListener(e -> {
             addBookTab();
         });
+        JPanel addPanel = new JPanel();
+        addPanel.add(addButton);
 
         DefaultTableModel booksTableModel = new DefaultTableModel(new Object[]{"ID", "Isbn", "Title", "Year", "CopiesAvailable", "Authors", "Categories"}, 0) {
             @Override
@@ -78,7 +204,8 @@ public class Main {
 
         JTable booksTable = new JTable(booksTableModel);
         JScrollPane booksScrollPane = new JScrollPane(booksTable);
-        booksPanel.add(addButton, BorderLayout.NORTH);
+        booksPanel.add(searchPanel, BorderLayout.NORTH);
+        booksPanel.add(addPanel, BorderLayout.SOUTH);
         booksPanel.add(booksScrollPane, BorderLayout.CENTER);
 
         booksTable.getColumnModel().getColumn(0).setMinWidth(0);
@@ -98,7 +225,6 @@ public class Main {
             }
         });
 
-        List<Book> books = bookService.getAllBooks();
         for (Book book : books) {
             StringBuilder authors = new StringBuilder();
             StringBuilder categories = new StringBuilder();
@@ -120,10 +246,51 @@ public class Main {
             booksTableModel.addRow(rowData);
         }
 
+        searchButton.addActionListener(e -> {
+            String isbn = isbnField.getText();
+            String title = titleField.getText();
+            String year = yearField.getText();
+            String author = authorField.getText();
+            String category = categoryField.getText();
+
+            List<Book> searchedBooks = bookService.searchBooks(BookFilter.builder()
+                    .isbn(isbn)
+                    .title(title)
+                    .year(year)
+                    .author(author)
+                    .category(category)
+                    .build());
+
+            DefaultTableModel model = (DefaultTableModel) booksTable.getModel();
+            model.setRowCount(0);
+
+            for (Book book : searchedBooks) {
+                StringBuilder authors = new StringBuilder();
+                StringBuilder categories = new StringBuilder();
+
+                for (Author bookAuthor : book.getAuthors()) {
+                    authors.append(bookAuthor.getName());
+                    if (book.getAuthors().size() > 1) {
+                        authors.append(", ");
+                    }
+                }
+
+                for (Category bookCategory : book.getCategories()) {
+                    categories.append(bookCategory.getName());
+                    if (book.getCategories().size() > 1) {
+                        categories.append(", ");
+                    }
+                }
+
+                Object[] rowData = {book.getId(), book.getIsbn(), book.getTitle(), book.getYear(), book.getCopiesAvailable(), authors.toString(), categories.toString()};
+                model.addRow(rowData);
+            }
+        });
+
         return booksPanel;
     }
 
-    private static JPanel createUsersPanel() {
+    private static JPanel createUsersPanel(List<User> users) {
         JPanel usersPanel = new JPanel();
         usersPanel.setLayout(new BorderLayout());
 
@@ -155,7 +322,6 @@ public class Main {
             }
         });
 
-        List<User> users = userService.getAllUsers();
         for (User user : users) {
             StringBuilder contacts = new StringBuilder();
 
@@ -169,7 +335,7 @@ public class Main {
         return usersPanel;
     }
 
-    private static JPanel createHistoryPanel() {
+    private static JPanel createHistoryPanel(List<BorrowHistory> borrowHistories) {
         JPanel historyPanel = new JPanel();
         historyPanel.setLayout(new BorderLayout());
 
@@ -201,7 +367,6 @@ public class Main {
             }
         });
 
-        List<BorrowHistory> borrowHistories = borrowHistoryService.getAllBorrowHistory();
         for (BorrowHistory borrowHistory : borrowHistories) {
             Object[] rowData = {borrowHistory.getId(), borrowHistory.getUser().getIdn(), borrowHistory.getUser().getFirstName() + " " + borrowHistory.getUser().getLastName(), borrowHistory.getBook().getIsbn(), borrowHistory.getBook().getTitle(), borrowHistory.getBorrowDate(), borrowHistory.getReturnDate()};
             historyTableModel.addRow(rowData);

@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.dao.BookDao;
+import org.example.filters.BookFilter;
 import org.example.model.books.Author;
 import org.example.model.books.Book;
 import org.example.model.books.Category;
@@ -36,6 +37,10 @@ public class BookService {
 
     public void updateBook(Book book) {
         bookDao.updateBook(book);
+    }
+
+    public List<Book> searchBooks(BookFilter bookFilter) {
+        return bookDao.searchBooks(bookFilter);
     }
 
     public void deleteBook(Book book) {
