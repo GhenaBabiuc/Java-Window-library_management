@@ -273,18 +273,15 @@ public class BookEditorForm extends JFrame {
                         Set<Category> selectedCategories = new HashSet<>();
                         selectedCategories.add(selectedCategory);
                         book.setCategories(selectedCategories);
-                        BookService bookService = new BookService();
 
-                        if (book.getId() == null) {
-                            if (new BookService().searchBooks(BookFilter.builder().isbn(isbnField.getText()).build()).isEmpty()) {
-                                bookService.updateBook(book);
-                            } else {
-                                JOptionPane.showMessageDialog(this, "Book with that isbn already exists.", "Info", JOptionPane.INFORMATION_MESSAGE);
-                                return;
-                            }
-                        } else {
+                        BookService bookService = new BookService();
+                        if (bookService.searchBooks(BookFilter.builder().isbn(isbnField.getText()).build()).isEmpty()) {
                             bookService.updateBook(book);
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Book with that isbn already exists.", "Info", JOptionPane.INFORMATION_MESSAGE);
+                            return;
                         }
+
                         changesMade = false;
 
                         Runnable clearTabbedPanes = Main::clearTabbedPanes;

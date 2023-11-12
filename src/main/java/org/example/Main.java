@@ -16,6 +16,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.List;
 
 public class Main {
@@ -326,7 +327,10 @@ public class Main {
             StringBuilder contacts = new StringBuilder();
 
             for (Contact contact : user.getContacts()) {
-                contacts.append(contact.getType()).append(":").append(contact.getValue()).append(", ");
+                contacts.append(contact.getType()).append(":").append(contact.getValue());
+                if (user.getContacts().size() > 1) {
+                    contacts.append(", ");
+                }
             }
             Object[] rowData = {user.getId(), user.getIdn(), user.getFirstName(), user.getLastName(), contacts};
             usersTableModel.addRow(rowData);
@@ -418,6 +422,15 @@ public class Main {
 
     private static void openBorrowHistoryTab(Long borrowHistoryId) {
         BorrowHistory borrowHistory = borrowHistoryService.getBorrowHistoryById(borrowHistoryId);
-        System.out.println(borrowHistory.getBorrowDate());
+        if (borrowHistory.getReturnDate() == null) {
+            borrowHistory.setReturnDate(Calendar.getInstance().getTime());
+
+            int result = JOptionPane.showConfirmDialog(null, "Return the book?", "Confirmation", JOptionPane.YES_NO_OPTION);
+            if (result == JOptionPane.YES_OPTION) {
+                new BorrowHistoryService().updateBorrowHistory(borrowHistory);
+                clearTabbedPanes();
+                addTabbedPanes();
+            }
+        }
     }
 }
