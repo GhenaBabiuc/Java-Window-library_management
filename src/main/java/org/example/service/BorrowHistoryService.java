@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.dao.BorrowHistoryDao;
+import org.example.filters.BorrowHistoryFilter;
 import org.example.model.books.BorrowHistory;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -16,8 +17,8 @@ public class BorrowHistoryService {
         borrowHistoryDao = new BorrowHistoryDao(sessionFactory);
     }
 
-    public List<BorrowHistory> getAllBorrowHistory() {
-        return borrowHistoryDao.getAllBorrowHistory();
+    public List<BorrowHistory> searchBorrowHistory(BorrowHistoryFilter borrowHistoryFilter) {
+        return borrowHistoryDao.searchBorrowHistory(borrowHistoryFilter);
     }
 
     public BorrowHistory getBorrowHistoryById(Long id) {

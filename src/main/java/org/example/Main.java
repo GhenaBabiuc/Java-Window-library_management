@@ -1,6 +1,8 @@
 package org.example;
 
+import com.toedter.calendar.JDateChooser;
 import org.example.filters.BookFilter;
+import org.example.filters.BorrowHistoryFilter;
 import org.example.model.books.Author;
 import org.example.model.books.Book;
 import org.example.model.books.BorrowHistory;
@@ -17,6 +19,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class Main {
@@ -57,7 +60,7 @@ public class Main {
     public static void addTabbedPanes() {
         tabbedPane.addTab("Books", createBooksPanel(bookService.searchBooks(new BookFilter())));
         tabbedPane.addTab("Users", createUsersPanel(userService.getAllUsers()));
-        tabbedPane.addTab("History", createHistoryPanel(borrowHistoryService.getAllBorrowHistory()));
+        tabbedPane.addTab("History", createHistoryPanel(borrowHistoryService.searchBorrowHistory(new BorrowHistoryFilter())));
     }
 
     private static JPanel createBooksPanel(List<Book> books) {
@@ -137,7 +140,7 @@ public class Main {
             @Override
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
-                if (!((Character.isDigit(c) || Character.isLetter(c) || c == '-' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && titleField.getText().length() < 255)) {
+                if (!((Character.isDigit(c) || Character.isLetter(c) || c == '-' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && authorField.getText().length() < 255)) {
                     e.consume();
                 }
             }
@@ -154,7 +157,7 @@ public class Main {
             @Override
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
-                if (!((Character.isDigit(c) || Character.isLetter(c) || c == '-' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && titleField.getText().length() < 255)) {
+                if (!((Character.isDigit(c) || Character.isLetter(c) || c == '-' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && categoryField.getText().length() < 255)) {
                     e.consume();
                 }
             }
@@ -343,6 +346,106 @@ public class Main {
         JPanel historyPanel = new JPanel();
         historyPanel.setLayout(new BorderLayout());
 
+        JTextField userIdnField = new JTextField(10);
+        userIdnField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!((Character.isDigit(c) || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && userIdnField.getText().length() < 12)) {
+                    e.consume();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    e.consume();
+                }
+            }
+        });
+
+        JTextField usernameField = new JTextField(13);
+        usernameField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!((Character.isDigit(c) || Character.isLetter(c) || c == '-' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && usernameField.getText().length() < 255)) {
+                    e.consume();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    e.consume();
+                }
+            }
+        });
+
+        JTextField bookIsbnField = new JTextField(13);
+        bookIsbnField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!((Character.isDigit(c) || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && bookIsbnField.getText().length() < 13)) {
+                    e.consume();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    e.consume();
+                }
+            }
+        });
+
+        JTextField bookTitleField = new JTextField(10);
+        bookTitleField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!((Character.isDigit(c) || Character.isLetter(c) || c == '-' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && bookTitleField.getText().length() < 255)) {
+                    e.consume();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    e.consume();
+                }
+            }
+        });
+
+        JButton searchButton = new JButton("Search");
+        JButton clearButton = new JButton("Clear");
+
+        clearButton.addActionListener(e -> {
+            clearTabbedPanes();
+            addTabbedPanes();
+            tabbedPane.setSelectedIndex(2);
+        });
+
+        JDateChooser borrowDateChooser = new JDateChooser();
+        JDateChooser returnDateChooser = new JDateChooser();
+
+        JPanel searchPanel = new JPanel();
+        searchPanel.add(new JLabel("User Idn:"));
+        searchPanel.add(userIdnField);
+        searchPanel.add(new JLabel("User Name:"));
+        searchPanel.add(usernameField);
+        searchPanel.add(new JLabel("Book Isbn:"));
+        searchPanel.add(bookIsbnField);
+        searchPanel.add(new JLabel("Book Title:"));
+        searchPanel.add(bookTitleField);
+//        searchPanel.add(new JLabel("Borrow Date:"));
+//        searchPanel.add(borrowDateChooser);
+//        searchPanel.add(new JLabel("Return Date:"));
+//        searchPanel.add(returnDateChooser);
+        searchPanel.add(searchButton);
+        searchPanel.add(clearButton);
+
         DefaultTableModel historyTableModel = new DefaultTableModel(new Object[]{"ID", "User Idn", "User Name", "Book Isbn", "Book Title", "Borrow Date", "Return Date"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -352,6 +455,7 @@ public class Main {
 
         JTable historyTable = new JTable(historyTableModel);
         JScrollPane historyScrollPane = new JScrollPane(historyTable);
+        historyPanel.add(searchPanel, BorderLayout.NORTH);
         historyPanel.add(historyScrollPane, BorderLayout.CENTER);
 
         historyTable.getColumnModel().getColumn(0).setMinWidth(0);
@@ -375,6 +479,32 @@ public class Main {
             Object[] rowData = {borrowHistory.getId(), borrowHistory.getUser().getIdn(), borrowHistory.getUser().getFirstName() + " " + borrowHistory.getUser().getLastName(), borrowHistory.getBook().getIsbn(), borrowHistory.getBook().getTitle(), borrowHistory.getBorrowDate(), borrowHistory.getReturnDate()};
             historyTableModel.addRow(rowData);
         }
+
+        searchButton.addActionListener(e -> {
+            String username = usernameField.getText();
+            String userIdn = userIdnField.getText();
+            String bookTitle = bookTitleField.getText();
+            String bookIsbn = bookIsbnField.getText();
+            Date borrowDate = borrowDateChooser.getDate();
+            Date returnDate = returnDateChooser.getDate();
+
+            List<BorrowHistory> borrowHistoryList = borrowHistoryService.searchBorrowHistory(BorrowHistoryFilter.builder()
+                    .username(username)
+                    .userIdn(userIdn)
+                    .bookTitle(bookTitle)
+                    .bookIsbn(bookIsbn)
+                    .borrowDate(borrowDate)
+                    .returnDate(returnDate)
+                    .build());
+
+            DefaultTableModel model = (DefaultTableModel) historyTable.getModel();
+            model.setRowCount(0);
+
+            for (BorrowHistory borrowHistory : borrowHistoryList) {
+                Object[] rowData = {borrowHistory.getId(), borrowHistory.getUser().getIdn(), borrowHistory.getUser().getFirstName() + " " + borrowHistory.getUser().getLastName(), borrowHistory.getBook().getIsbn(), borrowHistory.getBook().getTitle(), borrowHistory.getBorrowDate(), borrowHistory.getReturnDate()};
+                historyTableModel.addRow(rowData);
+            }
+        });
 
         return historyPanel;
     }
