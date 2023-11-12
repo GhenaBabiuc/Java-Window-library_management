@@ -54,7 +54,7 @@ public class Main {
     }
 
     public static void addTabbedPanes() {
-        tabbedPane.addTab("Books", createBooksPanel(bookService.getAllBooks()));
+        tabbedPane.addTab("Books", createBooksPanel(bookService.searchBooks(new BookFilter())));
         tabbedPane.addTab("Users", createUsersPanel(userService.getAllUsers()));
         tabbedPane.addTab("History", createHistoryPanel(borrowHistoryService.getAllBorrowHistory()));
     }

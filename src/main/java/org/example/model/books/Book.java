@@ -33,6 +33,9 @@ public class Book {
     @Column(name = "copies_available")
     private Long copiesAvailable;
 
+    @Column(name = "deleted")
+    private boolean deleted;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "book_to_author", schema = "books", joinColumns = {@JoinColumn(name = "book_id")}, inverseJoinColumns = {@JoinColumn(name = "author_id")})
     private Set<Author> authors;

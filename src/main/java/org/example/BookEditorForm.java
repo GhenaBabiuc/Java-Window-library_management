@@ -1,21 +1,23 @@
 package org.example;
 
+import org.example.filters.BookFilter;
 import org.example.model.books.Author;
 import org.example.model.books.Book;
+import org.example.model.books.BorrowHistory;
 import org.example.model.books.Category;
+import org.example.model.users.User;
 import org.example.service.BookService;
+import org.example.service.BorrowHistoryService;
+import org.example.service.UserService;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 public class BookEditorForm extends JFrame {
     private JTextField isbnField;
@@ -26,6 +28,7 @@ public class BookEditorForm extends JFrame {
     private JComboBox<Author> authorsComboBox;
     private JComboBox<Category> categoriesComboBox;
     private boolean changesMade = false;
+    private JFrame issueFrame;
 
     public BookEditorForm(Book book, List<Author> allAuthors, List<Category> allCategories) {
         setTitle("Book Editor");
@@ -271,7 +274,17 @@ public class BookEditorForm extends JFrame {
                         selectedCategories.add(selectedCategory);
                         book.setCategories(selectedCategories);
                         BookService bookService = new BookService();
-                        bookService.updateBook(book);
+
+                        if (book.getId() == null) {
+                            if (new BookService().searchBooks(BookFilter.builder().isbn(isbnField.getText()).build()).isEmpty()) {
+                                bookService.updateBook(book);
+                            } else {
+                                JOptionPane.showMessageDialog(this, "Book with that isbn already exists.", "Info", JOptionPane.INFORMATION_MESSAGE);
+                                return;
+                            }
+                        } else {
+                            bookService.updateBook(book);
+                        }
                         changesMade = false;
 
                         Runnable clearTabbedPanes = Main::clearTabbedPanes;
@@ -289,9 +302,71 @@ public class BookEditorForm extends JFrame {
                 }
             }
         });
+        JPanel editPanel = new JPanel();
+        editPanel.add(saveButton);
+
+        if (book.getId() != null) {
+            JButton deleteButton = new JButton("Delete");
+            deleteButton.addActionListener(e -> {
+                new BookService().deleteBook(book);
+
+                Runnable clearTabbedPanes = Main::clearTabbedPanes;
+                Runnable addTabbedPanes = Main::addTabbedPanes;
+                clearTabbedPanes.run();
+                addTabbedPanes.run();
+
+                JOptionPane.showMessageDialog(this, "Data has been successfully deleted", "Info", JOptionPane.INFORMATION_MESSAGE);
+                dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+            });
+
+            JButton issueButton = new JButton("Issue");
+            issueButton.addActionListener(e -> {
+                if (issueFrame == null || !issueFrame.isVisible()) {
+                    issueFrame = new JFrame("Issue Book");
+                    issueFrame.setSize(400, 200);
+
+                    List<User> userList = new UserService().getAllUsers();
+
+                    JPanel panel = new JPanel();
+                    JLabel userLabel = new JLabel("Users:");
+                    JComboBox<User> userComboBox = new JComboBox<>(userList.toArray(new User[0]));
+                    userComboBox.setSelectedItem(userList.iterator().next());
+
+                    userComboBox.setRenderer(new UserComboBoxRenderer());
+                    panel.add(userLabel);
+                    panel.add(userComboBox);
+
+                    JButton issueConfirmButton = new JButton("Confirm Issue");
+                    issueConfirmButton.addActionListener(issueEvent -> {
+                        User selectedUser = (User) userComboBox.getSelectedItem();
+                        new BorrowHistoryService().updateBorrowHistory(BorrowHistory.builder().borrowDate(Calendar.getInstance().getTime()).book(book).user(selectedUser).build());
+                        issueFrame.dispose();
+
+                        Runnable clearTabbedPanes = Main::clearTabbedPanes;
+                        Runnable addTabbedPanes = Main::addTabbedPanes;
+                        clearTabbedPanes.run();
+                        addTabbedPanes.run();
+
+                        JOptionPane.showMessageDialog(this, "Data has been successfully saved", "Info", JOptionPane.INFORMATION_MESSAGE);
+                        dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+                    });
+
+                    JPanel savePanel = new JPanel();
+                    savePanel.add(issueConfirmButton);
+                    panel.add(savePanel);
+                    issueFrame.add(panel);
+
+                    issueFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    issueFrame.setLocationRelativeTo(null);
+                    issueFrame.setVisible(true);
+                }
+            });
+            editPanel.add(deleteButton);
+            editPanel.add(issueButton);
+        }
 
         add(formPanel, BorderLayout.CENTER);
-        add(saveButton, BorderLayout.SOUTH);
+        add(editPanel, BorderLayout.SOUTH);
     }
 
     static class AuthorComboBoxRenderer extends DefaultListCellRenderer {
@@ -310,6 +385,17 @@ public class BookEditorForm extends JFrame {
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             if (value instanceof Category) {
                 value = ((Category) value).getName();
+            }
+            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            return this;
+        }
+    }
+
+    static class UserComboBoxRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            if (value instanceof User) {
+                value = ((User) value).getFirstName() + " " + ((User) value).getLastName() + " - " + ((User) value).getIdn();
             }
             super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             return this;

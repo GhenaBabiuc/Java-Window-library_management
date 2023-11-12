@@ -19,10 +19,6 @@ public class BookService {
         bookDao = new BookDao(sessionFactory);
     }
 
-    public List<Book> getAllBooks() {
-        return bookDao.getAllBooks();
-    }
-
     public Book getBookById(Long id) {
         return bookDao.getBookById(id);
     }

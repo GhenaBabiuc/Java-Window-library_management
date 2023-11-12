@@ -20,14 +20,6 @@ public class BookDao {
         this.sessionFactory = sessionFactory;
     }
 
-    public List<Book> getAllBooks() {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("SELECT b FROM Book b " +
-                    "JOIN FETCH b.authors " +
-                    "JOIN FETCH b.categories ", Book.class).getResultList();
-        }
-    }
-
     public Book getBookById(Long id) {
         try (Session session = sessionFactory.openSession()) {
             return session.createQuery("SELECT b FROM Book b " +
@@ -92,6 +84,10 @@ public class BookDao {
                 predicates.add(builder.like(builder.lower(categoryJoin.get("name")), "%" + bookFilter.getCategory().toLowerCase() + "%"));
             }
 
+            predicates.add(builder.equal(root.get("deleted"), false));
+
+            predicates.add(builder.greaterThan(root.get("copiesAvailable"), 0));
+
             query.where(predicates.toArray(new Predicate[0]));
 
             return session.createQuery(query).getResultList();
@@ -100,6 +96,13 @@ public class BookDao {
 
     public void deleteBook(Book book) {
         try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+
+            session.createQuery("UPDATE Book b SET b.deleted = true WHERE b.id = :bookId")
+                    .setParameter("bookId", book.getId())
+                    .executeUpdate();
+
+            transaction.commit();
         }
     }
 }

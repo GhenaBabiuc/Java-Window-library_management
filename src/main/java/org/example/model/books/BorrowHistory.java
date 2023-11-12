@@ -1,9 +1,6 @@
 package org.example.model.books;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.example.model.users.User;
 
 import javax.persistence.*;
@@ -13,6 +10,7 @@ import java.util.Date;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "borrow_history", schema = "books")
 public class BorrowHistory {

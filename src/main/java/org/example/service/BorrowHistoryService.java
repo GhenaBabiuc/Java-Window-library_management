@@ -23,4 +23,8 @@ public class BorrowHistoryService {
     public BorrowHistory getBorrowHistoryById(Long id) {
         return borrowHistoryDao.getBorrowHistoryById(id);
     }
+
+    public void updateBorrowHistory(BorrowHistory borrowHistory) {
+        borrowHistoryDao.updateBorrowHistory(borrowHistory);
+    }
 }

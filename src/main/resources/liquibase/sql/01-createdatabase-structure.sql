@@ -77,3 +77,41 @@ CREATE TABLE IF NOT EXISTS books.borrow_history
     borrow_date DATE NOT NULL,
     return_date DATE
 );
+
+--changeset gbabiuc:add-deleted-table-to-books-table splitStatements:false
+ALTER TABLE books.books
+    ADD deleted BOOL DEFAULT FALSE NOT NULL;
+
+--changeset gbabiuc:create-function-decrement_book_quantity splitStatements:false
+CREATE OR REPLACE FUNCTION books.decrement_book_quantity()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    UPDATE books.books SET copies_available = copies_available - 1 WHERE id = NEW.book_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+--changeset gbabiuc:create-function-increment_book_quantity splitStatements:false
+CREATE FUNCTION books.increment_book_quantity() RETURNS TRIGGER AS
+$$
+BEGIN
+    UPDATE books.books SET copies_available = copies_available + 1 WHERE id = NEW.book_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+--changeset gbabiuc:create-trigger-decrement_book_quantity splitStatements:false
+CREATE TRIGGER decrement_book_quantity
+    AFTER INSERT
+    ON books.borrow_history
+    FOR EACH ROW
+EXECUTE FUNCTION books.decrement_book_quantity();
+
+--changeset gbabiuc:create-trigger-increment_book_quantity splitStatements:false
+CREATE TRIGGER increment_book_quantity
+    AFTER UPDATE
+    ON books.borrow_history
+    FOR EACH ROW
+    WHEN (OLD.return_date IS NULL AND NEW.return_date IS NOT NULL)
+EXECUTE FUNCTION books.increment_book_quantity();
