@@ -14,6 +14,6 @@ public class BorrowHistoryFilter {
     private String username;
     private String bookIsbn;
     private String bookTitle;
-    private Date borrowDate;
-    private Date returnDate;
+    private Date afterDate;
+    private Date beforeDate;
 }

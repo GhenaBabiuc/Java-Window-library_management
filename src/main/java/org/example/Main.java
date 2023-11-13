@@ -427,8 +427,8 @@ public class Main {
             tabbedPane.setSelectedIndex(2);
         });
 
-        JDateChooser borrowDateChooser = new JDateChooser();
-        JDateChooser returnDateChooser = new JDateChooser();
+        JDateChooser afterDateChooser = new JDateChooser();
+        JDateChooser beforeDateChooser = new JDateChooser();
 
         JPanel searchPanel = new JPanel();
         searchPanel.add(new JLabel("User Idn:"));
@@ -439,10 +439,10 @@ public class Main {
         searchPanel.add(bookIsbnField);
         searchPanel.add(new JLabel("Book Title:"));
         searchPanel.add(bookTitleField);
-//        searchPanel.add(new JLabel("Borrow Date:"));
-//        searchPanel.add(borrowDateChooser);
-//        searchPanel.add(new JLabel("Return Date:"));
-//        searchPanel.add(returnDateChooser);
+        searchPanel.add(new JLabel("Before Date:"));
+        searchPanel.add(beforeDateChooser);
+        searchPanel.add(new JLabel("After Date:"));
+        searchPanel.add(afterDateChooser);
         searchPanel.add(searchButton);
         searchPanel.add(clearButton);
 
@@ -485,16 +485,16 @@ public class Main {
             String userIdn = userIdnField.getText();
             String bookTitle = bookTitleField.getText();
             String bookIsbn = bookIsbnField.getText();
-            Date borrowDate = borrowDateChooser.getDate();
-            Date returnDate = returnDateChooser.getDate();
+            Date afterDate = afterDateChooser.getDate();
+            Date beforenDate = beforeDateChooser.getDate();
 
             List<BorrowHistory> borrowHistoryList = borrowHistoryService.searchBorrowHistory(BorrowHistoryFilter.builder()
                     .username(username)
                     .userIdn(userIdn)
                     .bookTitle(bookTitle)
                     .bookIsbn(bookIsbn)
-                    .borrowDate(borrowDate)
-                    .returnDate(returnDate)
+                    .afterDate(afterDate)
+                    .beforeDate(beforenDate)
                     .build());
 
             DefaultTableModel model = (DefaultTableModel) historyTable.getModel();

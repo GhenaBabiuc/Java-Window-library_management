@@ -55,6 +55,14 @@ public class BorrowHistoryDao {
                 predicates.add(builder.like(builder.lower(bookJoin.get("isbn")), "%" + borrowHistoryFilter.getBookIsbn().toLowerCase() + "%"));
             }
 
+            if (borrowHistoryFilter.getBeforeDate() != null) {
+                predicates.add(builder.lessThanOrEqualTo(root.get("borrowDate"), borrowHistoryFilter.getBeforeDate()));
+            }
+
+            if (borrowHistoryFilter.getAfterDate() != null) {
+                predicates.add(builder.greaterThanOrEqualTo(root.get("borrowDate"), borrowHistoryFilter.getAfterDate()));
+            }
+
             query.where(predicates.toArray(new Predicate[0]));
 
             return session.createQuery(query).getResultList();
