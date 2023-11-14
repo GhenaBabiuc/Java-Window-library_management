@@ -1,13 +1,14 @@
 package org.example.dao;
 
+import org.apache.commons.lang3.StringUtils;
+import org.example.filters.UserFilter;
+import org.example.model.users.Contact;
 import org.example.model.users.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
@@ -17,17 +18,36 @@ public class UserDao {
         this.sessionFactory = sessionFactory;
     }
 
-    public List<User> getAllUsers() {
+    public List<User> searchUsers(UserFilter userFilter) {
         try (Session session = sessionFactory.openSession()) {
             CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaQuery<User> criteria = builder.createQuery(User.class);
-            Root<User> userRoot = criteria.from(User.class);
+            CriteriaQuery<User> query = builder.createQuery(User.class);
+            Root<User> userRoot = query.from(User.class);
 
             userRoot.fetch("contacts", JoinType.LEFT);
 
-            criteria.select(userRoot);
+            List<Predicate> predicates = new ArrayList<>();
 
-            return session.createQuery(criteria).getResultList();
+            if (StringUtils.isNotBlank(userFilter.getIdn())) {
+                predicates.add(builder.like(builder.lower(userRoot.get("idn")), "%" + userFilter.getIdn().toLowerCase() + "%"));
+            }
+
+            if (StringUtils.isNotBlank(userFilter.getFirstName())) {
+                predicates.add(builder.like(builder.lower(userRoot.get("firstName")), "%" + userFilter.getFirstName().toLowerCase() + "%"));
+            }
+
+            if (StringUtils.isNotBlank(userFilter.getLastName())) {
+                predicates.add(builder.like(builder.lower(userRoot.get("lastName")), "%" + userFilter.getLastName().toLowerCase() + "%"));
+            }
+
+            if (StringUtils.isNotBlank(userFilter.getContacts())) {
+                Join<User, Contact> contactJoin = userRoot.join("contacts");
+                predicates.add(builder.like(builder.lower(contactJoin.get("value")), "%" + userFilter.getContacts().toLowerCase() + "%"));
+            }
+
+            query.where(predicates.toArray(new Predicate[0]));
+
+            return session.createQuery(query).getResultList();
         }
     }
 

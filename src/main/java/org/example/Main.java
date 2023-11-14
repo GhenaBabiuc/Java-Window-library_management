@@ -3,6 +3,7 @@ package org.example;
 import com.toedter.calendar.JDateChooser;
 import org.example.filters.BookFilter;
 import org.example.filters.BorrowHistoryFilter;
+import org.example.filters.UserFilter;
 import org.example.model.books.Author;
 import org.example.model.books.Book;
 import org.example.model.books.BorrowHistory;
@@ -59,7 +60,7 @@ public class Main {
 
     public static void addTabbedPanes() {
         tabbedPane.addTab("Books", createBooksPanel(bookService.searchBooks(new BookFilter())));
-        tabbedPane.addTab("Users", createUsersPanel(userService.getAllUsers()));
+        tabbedPane.addTab("Users", createUsersPanel(userService.searchUsers(new UserFilter())));
         tabbedPane.addTab("History", createHistoryPanel(borrowHistoryService.searchBorrowHistory(new BorrowHistoryFilter())));
     }
 
@@ -298,6 +299,99 @@ public class Main {
         JPanel usersPanel = new JPanel();
         usersPanel.setLayout(new BorderLayout());
 
+        JTextField userIdnField = new JTextField(10);
+        userIdnField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!((Character.isDigit(c) || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && userIdnField.getText().length() < 12)) {
+                    e.consume();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    e.consume();
+                }
+            }
+        });
+
+        JTextField firstNameField = new JTextField(13);
+        firstNameField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!((Character.isDigit(c) || Character.isLetter(c) || c == '-' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && firstNameField.getText().length() < 255)) {
+                    e.consume();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    e.consume();
+                }
+            }
+        });
+
+        JTextField lastNameField = new JTextField(13);
+        lastNameField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!((Character.isDigit(c) || Character.isLetter(c) || c == '-' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && lastNameField.getText().length() < 255)) {
+                    e.consume();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    e.consume();
+                }
+            }
+        });
+
+        JTextField contactField = new JTextField(13);
+        contactField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!((Character.isDigit(c) || Character.isLetter(c) || c == '-' || c == '@' || c == '.' || c == '_' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && contactField.getText().length() < 255)) {
+                    e.consume();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_V) {
+                    e.consume();
+                }
+            }
+        });
+
+        JButton searchButton = new JButton("Search");
+        JButton clearButton = new JButton("Clear");
+
+        clearButton.addActionListener(e -> {
+            clearTabbedPanes();
+            addTabbedPanes();
+            tabbedPane.setSelectedIndex(1);
+        });
+
+        JPanel searchPanel = new JPanel();
+        searchPanel.add(new JLabel("User Idn:"));
+        searchPanel.add(userIdnField);
+        searchPanel.add(new JLabel("User First Name:"));
+        searchPanel.add(firstNameField);
+        searchPanel.add(new JLabel("User Last Name:"));
+        searchPanel.add(lastNameField);
+        searchPanel.add(new JLabel("Contact:"));
+        searchPanel.add(contactField);
+        searchPanel.add(searchButton);
+        searchPanel.add(clearButton);
+
         DefaultTableModel usersTableModel = new DefaultTableModel(new Object[]{"ID", "Idn", "First Name", "Last Name", "Contacts"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -307,6 +401,7 @@ public class Main {
 
         JTable usersTable = new JTable(usersTableModel);
         JScrollPane usersScrollPane = new JScrollPane(usersTable);
+        usersPanel.add(searchPanel, BorderLayout.NORTH);
         usersPanel.add(usersScrollPane, BorderLayout.CENTER);
 
         usersTable.getColumnModel().getColumn(0).setMinWidth(0);
@@ -338,6 +433,36 @@ public class Main {
             Object[] rowData = {user.getId(), user.getIdn(), user.getFirstName(), user.getLastName(), contacts};
             usersTableModel.addRow(rowData);
         }
+
+        searchButton.addActionListener(e -> {
+            String userIdn = userIdnField.getText();
+            String userFirstName = firstNameField.getText();
+            String userLastName = lastNameField.getText();
+            String userContact = contactField.getText();
+
+            List<User> userList = userService.searchUsers(UserFilter.builder()
+                    .idn(userIdn)
+                    .firstName(userFirstName)
+                    .lastName(userLastName)
+                    .contacts(userContact)
+                    .build());
+
+            DefaultTableModel model = (DefaultTableModel) usersTable.getModel();
+            model.setRowCount(0);
+
+            for (User user : userList) {
+                StringBuilder contacts = new StringBuilder();
+
+                for (Contact contact : user.getContacts()) {
+                    contacts.append(contact.getType()).append(":").append(contact.getValue());
+                    if (user.getContacts().size() > 1) {
+                        contacts.append(", ");
+                    }
+                }
+                Object[] rowData = {user.getId(), user.getIdn(), user.getFirstName(), user.getLastName(), contacts};
+                usersTableModel.addRow(rowData);
+            }
+        });
 
         return usersPanel;
     }

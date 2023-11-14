@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.filters.BookFilter;
+import org.example.filters.UserFilter;
 import org.example.model.books.Author;
 import org.example.model.books.Book;
 import org.example.model.books.BorrowHistory;
@@ -322,7 +323,7 @@ public class BookEditorForm extends JFrame {
                     issueFrame = new JFrame("Issue Book");
                     issueFrame.setSize(400, 200);
 
-                    List<User> userList = new UserService().getAllUsers();
+                    List<User> userList = new UserService().searchUsers(new UserFilter());
 
                     JPanel panel = new JPanel();
                     JLabel userLabel = new JLabel("Users:");

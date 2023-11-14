@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.dao.UserDao;
+import org.example.filters.UserFilter;
 import org.example.model.users.User;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -16,8 +17,8 @@ public class UserService {
         userDao = new UserDao(sessionFactory);
     }
 
-    public List<User> getAllUsers() {
-        return userDao.getAllUsers();
+    public List<User> searchUsers(UserFilter userFilter) {
+        return userDao.searchUsers(userFilter);
     }
 
     public User getUserByID(Long id) {
