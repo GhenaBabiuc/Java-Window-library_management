@@ -115,3 +115,7 @@ CREATE TRIGGER increment_book_quantity
     FOR EACH ROW
     WHEN (OLD.return_date IS NULL AND NEW.return_date IS NOT NULL)
 EXECUTE FUNCTION books.increment_book_quantity();
+
+--changeset gbabiuc:add-deleted-column-to-user-table splitStatements:false
+ALTER TABLE users.users
+    ADD deleted BOOL DEFAULT FALSE NOT NULL;

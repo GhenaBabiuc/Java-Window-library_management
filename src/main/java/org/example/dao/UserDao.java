@@ -6,6 +6,7 @@ import org.example.model.users.Contact;
 import org.example.model.users.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
@@ -45,6 +46,8 @@ public class UserDao {
                 predicates.add(builder.like(builder.lower(contactJoin.get("value")), "%" + userFilter.getContacts().toLowerCase() + "%"));
             }
 
+            predicates.add(builder.equal(userRoot.get("deleted"), false));
+
             query.where(predicates.toArray(new Predicate[0]));
 
             return session.createQuery(query).getResultList();
@@ -56,6 +59,28 @@ public class UserDao {
             return session.createQuery("SELECT u FROM User u " +
                     "JOIN FETCH u.contacts " +
                     "WHERE u.id=:id", User.class).setParameter("id", id).getSingleResult();
+        }
+    }
+
+    public void updateUser(User user) {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+
+            session.merge(user);
+
+            transaction.commit();
+        }
+    }
+
+    public void deleteUser(User user) {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+
+            session.createQuery("UPDATE User u SET u.deleted = true WHERE u.id = :userId")
+                    .setParameter("userId", user.getId())
+                    .executeUpdate();
+
+            transaction.commit();
         }
     }
 }

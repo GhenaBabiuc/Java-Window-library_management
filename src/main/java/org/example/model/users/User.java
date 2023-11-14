@@ -30,6 +30,9 @@ public class User {
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
+    @Column(name = "deleted")
+    private boolean deleted;
+
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "user_to_contact", schema = "users", joinColumns = {@JoinColumn(name = "contact_id")}, inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private Set<Contact> contacts;

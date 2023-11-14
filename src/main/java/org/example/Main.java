@@ -30,6 +30,7 @@ public class Main {
     private static JFrame frame;
     private static JTabbedPane tabbedPane;
     private static BookEditorForm bookEditorForm;
+    private static UserEditorForm userEditorForm;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Main::createAndShowGUI);
@@ -392,6 +393,13 @@ public class Main {
         searchPanel.add(searchButton);
         searchPanel.add(clearButton);
 
+        JButton addButton = new JButton("Add new user");
+        addButton.addActionListener(e -> {
+            openUserTab();
+        });
+        JPanel addPanel = new JPanel();
+        addPanel.add(addButton);
+
         DefaultTableModel usersTableModel = new DefaultTableModel(new Object[]{"ID", "Idn", "First Name", "Last Name", "Contacts"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -401,6 +409,7 @@ public class Main {
 
         JTable usersTable = new JTable(usersTableModel);
         JScrollPane usersScrollPane = new JScrollPane(usersTable);
+        usersPanel.add(addPanel, BorderLayout.SOUTH);
         usersPanel.add(searchPanel, BorderLayout.NORTH);
         usersPanel.add(usersScrollPane, BorderLayout.CENTER);
 
@@ -671,8 +680,35 @@ public class Main {
     }
 
     private static void openUserTab(Long userId) {
-        User user = userService.getUserByID(userId);
-        System.out.println(user.getFirstName());
+        if (userEditorForm == null) {
+            User user = userService.getUserByID(userId);
+            userEditorForm = new UserEditorForm(user);
+            userEditorForm.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    userEditorForm = null;
+                }
+            });
+            userEditorForm.setVisible(true);
+        } else {
+            userEditorForm.toFront();
+        }
+    }
+
+    private static void openUserTab() {
+        if (userEditorForm == null) {
+            User user = new User();
+            userEditorForm = new UserEditorForm(user);
+            userEditorForm.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    userEditorForm = null;
+                }
+            });
+            userEditorForm.setVisible(true);
+        } else {
+            userEditorForm.toFront();
+        }
     }
 
     private static void openBorrowHistoryTab(Long borrowHistoryId) {

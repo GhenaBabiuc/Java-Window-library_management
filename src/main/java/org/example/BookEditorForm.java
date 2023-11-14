@@ -101,7 +101,7 @@ public class BookEditorForm extends JFrame {
             @Override
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
-                if (!((Character.isDigit(c) || Character.isLetter(c) || c == '-' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_DELETE) && titleField.getText().length() < 255)) {
+                if (!((Character.isDigit(c) || Character.isLetter(c) || c == '-' || c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_SPACE || c == KeyEvent.VK_DELETE) && titleField.getText().length() < 255)) {
                     e.consume();
                 }
             }
@@ -276,11 +276,15 @@ public class BookEditorForm extends JFrame {
                         book.setCategories(selectedCategories);
 
                         BookService bookService = new BookService();
-                        if (bookService.searchBooks(BookFilter.builder().isbn(isbnField.getText()).build()).isEmpty()) {
-                            bookService.updateBook(book);
+                        if (book.getId() == null) {
+                            if (bookService.searchBooks(BookFilter.builder().isbn(isbnField.getText()).build()).isEmpty()) {
+                                bookService.updateBook(book);
+                            } else {
+                                JOptionPane.showMessageDialog(this, "Book with that isbn already exists.", "Info", JOptionPane.INFORMATION_MESSAGE);
+                                return;
+                            }
                         } else {
-                            JOptionPane.showMessageDialog(this, "Book with that isbn already exists.", "Info", JOptionPane.INFORMATION_MESSAGE);
-                            return;
+                            bookService.updateBook(book);
                         }
 
                         changesMade = false;
