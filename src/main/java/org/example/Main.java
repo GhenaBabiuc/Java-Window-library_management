@@ -37,7 +37,7 @@ public class Main {
     private static void createAndShowGUI() {
         frame = new JFrame("Library Management");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(1000, 600);
+        frame.setSize(1400, 800);
         frame.setLocationRelativeTo(null);
 
         bookService = new BookService();

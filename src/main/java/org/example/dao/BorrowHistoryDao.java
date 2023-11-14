@@ -56,11 +56,11 @@ public class BorrowHistoryDao {
             }
 
             if (borrowHistoryFilter.getBeforeDate() != null) {
-                predicates.add(builder.lessThanOrEqualTo(root.get("borrowDate"), borrowHistoryFilter.getBeforeDate()));
+                predicates.add(builder.greaterThanOrEqualTo(root.get("borrowDate"), borrowHistoryFilter.getBeforeDate()));
             }
 
             if (borrowHistoryFilter.getAfterDate() != null) {
-                predicates.add(builder.greaterThanOrEqualTo(root.get("borrowDate"), borrowHistoryFilter.getAfterDate()));
+                predicates.add(builder.lessThanOrEqualTo(root.get("borrowDate"), borrowHistoryFilter.getAfterDate()));
             }
 
             query.where(predicates.toArray(new Predicate[0]));
