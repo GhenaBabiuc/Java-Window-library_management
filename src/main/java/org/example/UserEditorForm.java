@@ -157,6 +157,22 @@ public class UserEditorForm extends JFrame {
         contactValueField = user.getContacts() == null ? new JTextField() : new JTextField(user.getContacts().iterator().next().getValue());
         formPanel.add(contactValueLabel);
         formPanel.add(contactValueField);
+        contactValueField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                changesMade = true;
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                changesMade = true;
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                changesMade = true;
+            }
+        });
         contactValueField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -212,6 +228,17 @@ public class UserEditorForm extends JFrame {
                             contact = user.getContacts().iterator().next();
                         }
                         contact.setType((String) contactsTypeComboBox.getSelectedItem());
+                        if (((String) contactsTypeComboBox.getSelectedItem()).contentEquals("Email")) {
+                            if (!contactValueField.getText().contains("@")) {
+                                JOptionPane.showMessageDialog(this, "Email is not entered correctly .", "Info", JOptionPane.INFORMATION_MESSAGE);
+                                return;
+                            }
+                        } else {
+                            if (contactValueField.getText().contains("@")) {
+                                JOptionPane.showMessageDialog(this, "Phone is not entered correctly .", "Info", JOptionPane.INFORMATION_MESSAGE);
+                                return;
+                            }
+                        }
                         contact.setValue(contactValueField.getText());
                         Set<Contact> selectedContact = new HashSet<>();
                         selectedContact.add(contact);
@@ -231,10 +258,8 @@ public class UserEditorForm extends JFrame {
 
                         changesMade = false;
 
-                        Runnable clearTabbedPanes = Main::clearTabbedPanes;
-                        Runnable addTabbedPanes = Main::addTabbedPanes;
-                        clearTabbedPanes.run();
-                        addTabbedPanes.run();
+                        Runnable userUpdatePane = Main::userUpdatePane;
+                        userUpdatePane.run();
 
                         JOptionPane.showMessageDialog(this, "Data has been successfully saved", "Info", JOptionPane.INFORMATION_MESSAGE);
                         dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
@@ -254,10 +279,8 @@ public class UserEditorForm extends JFrame {
             deleteButton.addActionListener(e -> {
                 new UserService().deleteUser(user);
 
-                Runnable clearTabbedPanes = Main::clearTabbedPanes;
-                Runnable addTabbedPanes = Main::addTabbedPanes;
-                clearTabbedPanes.run();
-                addTabbedPanes.run();
+                Runnable userUpdatePane = Main::userUpdatePane;
+                userUpdatePane.run();
 
                 JOptionPane.showMessageDialog(this, "Data has been successfully deleted", "Info", JOptionPane.INFORMATION_MESSAGE);
                 dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));

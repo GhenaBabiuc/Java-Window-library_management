@@ -65,6 +65,12 @@ public class Main {
         tabbedPane.addTab("History", createHistoryPanel(borrowHistoryService.searchBorrowHistory(new BorrowHistoryFilter())));
     }
 
+    public static void userUpdatePane() {
+        clearTabbedPanes();
+        addTabbedPanes();
+        tabbedPane.setSelectedIndex(1);
+    }
+
     private static JPanel createBooksPanel(List<Book> books) {
         JPanel booksPanel = new JPanel();
         booksPanel.setLayout(new BorderLayout());
