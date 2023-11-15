@@ -215,7 +215,7 @@ public class UserEditorForm extends JFrame {
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
             if (changesMade) {
-                int result = JOptionPane.showConfirmDialog(this, "Save changes to the book?", "Confirmation", JOptionPane.YES_NO_OPTION);
+                int result = JOptionPane.showConfirmDialog(this, "Save changes to the user?", "Confirmation", JOptionPane.YES_NO_OPTION);
                 if (result == JOptionPane.YES_OPTION) {
                     if (!(idnField.getText().isEmpty() || firstNameField.getText().isEmpty() || lastNameField.getText().isEmpty() || contactValueField.getText().isEmpty())) {
                         user.setIdn(idnField.getText());
