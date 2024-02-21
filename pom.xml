@@ -17,7 +17,7 @@
 
         <!-- Versions for libraries used by the project-->
         <liquibase.version>4.2.1</liquibase.version>
-        <postgresql.version>42.5.4</postgresql.version>
+        <postgresql.version>42.5.5</postgresql.version>
         <lombok.version>1.18.26</lombok.version>
     </properties>
 
